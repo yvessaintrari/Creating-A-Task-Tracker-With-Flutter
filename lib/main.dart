@@ -15,6 +15,13 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class Task {
+  String title;
+  bool done;
+
+  Task(this.title, {this.done = false});
+}
+
 class TaskPage extends StatefulWidget {
   const TaskPage({super.key});
 
@@ -23,14 +30,14 @@ class TaskPage extends StatefulWidget {
 }
 
 class _TaskPageState extends State<TaskPage> {
-  final List<String> tasks = [];
+  final List<Task> tasks = [];
   final TextEditingController controller = TextEditingController();
 
   void addTask() {
     final text = controller.text.trim();
     if (text.isEmpty) return;
     setState(() {
-      tasks.add(text);
+      tasks.add(Task(text));
     });
     controller.clear();
   }
@@ -73,14 +80,72 @@ class _TaskPageState extends State<TaskPage> {
             child: ListView.builder(
               itemCount: tasks.length,
               itemBuilder: (context, index) {
+                final task = tasks[index];
                 return ListTile(
-                  leading: const Icon(Icons.check_circle_outline),
-                  title: Text(tasks[index]),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => TaskDetailPage(task: task),
+                      ),
+                    );
+                  },
+                  leading: Checkbox(
+                    value: task.done,
+                    onChanged: (value) {
+                      setState(() {
+                        task.done = value ?? false;
+                      });
+                    },
+                  ),
+                  title: Text(
+                    task.title,
+                    style: TextStyle(
+                      decoration:
+                          task.done ? TextDecoration.lineThrough : null,
+                    ),
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () {
+                      setState(() {
+                        tasks.removeAt(index);
+                      });
+                    },
+                  ),
                 );
               },
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class TaskDetailPage extends StatelessWidget {
+  final Task task;
+
+  const TaskDetailPage({super.key, required this.task});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Task details')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(task.title, style: const TextStyle(fontSize: 28)),
+            const SizedBox(height: 12),
+            Text(task.done ? 'Done' : 'Not done yet'),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Back'),
+            ),
+          ],
+        ),
       ),
     );
   }
