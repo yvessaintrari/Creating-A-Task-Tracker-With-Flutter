@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 void main() => runApp(const MyApp());
@@ -51,7 +55,20 @@ class _TaskPageState extends State<TaskPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Task Tracker')),
+            appBar: AppBar(
+        title: const Text('Task Tracker'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.cloud_download),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const OnlineTasksPage()),
+              );
+            },
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Padding(
@@ -146,6 +163,66 @@ class TaskDetailPage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class OnlineTasksPage extends StatefulWidget {
+  const OnlineTasksPage({super.key});
+
+  @override
+  State<OnlineTasksPage> createState() => _OnlineTasksPageState();
+}
+
+class _OnlineTasksPageState extends State<OnlineTasksPage> {
+  late Future<List<dynamic>> futureTodos;
+
+  Future<List<dynamic>> loadTodos() async {
+    final response = await http.get(
+      Uri.parse('https://jsonplaceholder.typicode.com/todos?_limit=10'),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as List<dynamic>;
+    }
+    throw Exception('Could not load (code ${response.statusCode})');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    futureTodos = loadTodos();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('From the internet')),
+      body: FutureBuilder<List<dynamic>>(
+        future: futureTodos,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Something went wrong: ${snapshot.error}'),
+            );
+          }
+          final todos = snapshot.data!;
+          return ListView.builder(
+            itemCount: todos.length,
+            itemBuilder: (context, index) {
+              final todo = todos[index];
+              return ListTile(
+                leading: Icon(
+                  todo['completed'] ? Icons.check_circle : Icons.circle_outlined,
+                ),
+                title: Text(todo['title']),
+              );
+            },
+          );
+        },
       ),
     );
   }
