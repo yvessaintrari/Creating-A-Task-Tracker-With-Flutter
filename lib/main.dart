@@ -15,13 +15,24 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class TaskPage extends StatelessWidget {
+class TaskPage extends StatefulWidget {
   const TaskPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final tasks = ['Install Flutter', 'Push to GitHub', 'Learn setState'];
+  State<TaskPage> createState() => _TaskPageState();
+}
 
+class _TaskPageState extends State<TaskPage> {
+  final List<String> tasks = ['Install Flutter', 'Push to GitHub'];
+
+  void addTask() {
+    setState(() {
+      tasks.add('New task ${tasks.length + 1}');
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Task Tracker')),
       body: ListView.builder(
@@ -32,6 +43,10 @@ class TaskPage extends StatelessWidget {
             title: Text(tasks[index]),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: addTask,
+        child: const Icon(Icons.add),
       ),
     );
   }
