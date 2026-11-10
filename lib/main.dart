@@ -55,7 +55,7 @@ class _TaskPageState extends State<TaskPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            appBar: AppBar(
+      appBar: AppBar(
         title: const Text('Task Tracker'),
         actions: [
           IconButton(
@@ -86,10 +86,7 @@ class _TaskPageState extends State<TaskPage> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: addTask,
-                  child: const Text('Add'),
-                ),
+                ElevatedButton(onPressed: addTask, child: const Text('Add')),
               ],
             ),
           ),
@@ -118,8 +115,7 @@ class _TaskPageState extends State<TaskPage> {
                   title: Text(
                     task.title,
                     style: TextStyle(
-                      decoration:
-                          task.done ? TextDecoration.lineThrough : null,
+                      decoration: task.done ? TextDecoration.lineThrough : null,
                     ),
                   ),
                   trailing: IconButton(
@@ -216,7 +212,9 @@ class _OnlineTasksPageState extends State<OnlineTasksPage> {
               final todo = todos[index];
               return ListTile(
                 leading: Icon(
-                  todo['completed'] ? Icons.check_circle : Icons.circle_outlined,
+                  todo['completed']
+                      ? Icons.check_circle
+                      : Icons.circle_outlined,
                 ),
                 title: Text(todo['title']),
               );
